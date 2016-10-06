@@ -64,15 +64,47 @@ fi
 # 위에서 color_prompt의 if문
 if [ "$color_prompt" = yes ]; then
 	# 설정되어 있으면 아래와 같은 옵션을 갖고 있는 prompt가 됩니다.
+	# 바로 아래는 새강이 추가된 프롬프트를 적용하는 것이며
+	# 프롬프트에 색상을 추가하는 방법은 \[\033[컬러넘버m\]를 해당 프롬프트 앞에 쓰는 것입니다.
+	# 간단한 몇가지 컬러코드에 대해서 적으면
+	# Black       0;30     Dark Gray     1;30
+	# Blue        0;34     Light Blue    1;34
+	# Green       0;32     Light Green   1;32
+	# Cyan        0;36     Light Cyan    1;36
+	# Red         0;31     Light Red     1;31
+	# Purple      0;35     Light Purple  1;35
+	# Brown       0;33     Yellow        1;33
+	# Light Gray  0;37     White         1;37
 	PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
 else
 	# if color_prompt=no
+	# 아래는 비색상 설정일 경우 표시되는 프롬프트며
+	# 다음과 같이 PS1값인 제어 문자나 문자열에 따라 출력됩니다.
+	# 다음은 유저이름(\u)@호스트이름(\h):현재 경로(\w)권한(\$, 루트 유저일경우 $가 #으로 덮어씌어집니다.)
+	# 그외 제어 문자
+	# \t: 24시간기준 시:분:초
+	# \T: 12시간기준 시:분:초
+	# \@: 오전/오후
+	# \a: ASCII 벨 문자(07)
+	# \d: "요일 달 일"(예시: Tue May 26)
+	# \e: ASCII 이스케이프 문자(033)
+	# \H: 호스트 전체 이름
+	# \j: 현재 쉘에서 관리되는 작업의 수
+	# \l: 쉘 터미널 디바이스 이름
+	# \n: newline
+	# \v: 배쉬 버전
+	# \V: 배포 배쉬, 버전 + 패치레벨
+	# \W: 현재 작업중인 디렉토리의 이름
+	# \!: 히스토리 넘버
+	# \#: 커맨드 넘버
+	# \[: 프롬프트에서 터미널 제어 시퀸스에 사용되는 비출력 문자의 시작
+	# \]: 비출력 문자의 끝
 	PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 #위에서 사용한 color_prompt와 force_color_prompt값을 해제합니다.
 unset color_prompt force_color_prompt
 
-# xterm일 경우 제목을 user@host:dir로 설정합니다.
+# xterm일 경우 제목을 유저명@호스트명:로 설정합니다.
 case "$TERM" in
 xterm*|rxvt*)
 	PS="\[\e]0;${debian_chroot:(debian_chroot)}\u@\h: \w\a\]$PS1"
