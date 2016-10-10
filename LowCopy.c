@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
 
 	if(argc > 3){
 		printf("this program need parameters less than 3(input and output)\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	if(argc>1)
 		f.input = argv[1];
@@ -67,5 +67,5 @@ int main(int argc, char *argv[]){
 	pthread_cancel(tid[1]);
 	printf("\ndone\n");
 
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
