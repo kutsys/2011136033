@@ -3,69 +3,49 @@
 #include<fcntl.h>
 #include<stdlib.h>
 #include<stdio.h>
-#include<pthread.h>
+#include<time.h>
 
-#define SLEEP_MIC 10
+#define SLEEP_SEC 1
 
-typedef struct _file{
-	char *input;
-	char *output;
-}File;
 
-void *copyFile(void *file){
-	File *fp = (File*)file;
+int main(int argc, char *argv[]){
 	char block[1024];
 	int in, out;
 	int nread;
-	
-	in = open(fp->input, O_RDONLY);
-	out = open(fp->output, O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
+	time_t st, et;
 
-	while((nread = read(in,block,sizeof(block))) > 0)
-		write(out, block, nread);
-}
-
-void *printDot(void *arg){
-	while(1){
-		usleep(SLEEP_MIC);
-		printf(".");
-		fflush(stdout);
-	}
-}
-
-int main(int argc, char *argv[]){
-	File f;
-	int i;
-	pthread_t tid[2];
-	int iret[2];
-
+	st = time(NULL);
 	if(argc > 3){
-		printf("this program need parameters less than 3(input and output)\n");
+		printf("this program need parameters less than 3");
 		exit(EXIT_FAILURE);
 	}
-	if(argc>1)
-		f.input = argv[1];
+
+	if(argc > 1){
+		if((in = open(argv[1], O_RDONLY)) < 0){
+			printf("dont exist file\n");
+			exit(EXIT_FAILURE);
+		}
+	}	
+	else{
+		printf("we need to know what is input file\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if(argc > 2)
+		out = open(argv[2], O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
 	else
-		f.input = "file.in";
+		out = open("file.out", O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
 
-	if(argc>2)
-		f.output = argv[2];
-	else
-		f.output = "file.out";
-
-
-	if(iret[0] = pthread_create(&(tid[0]), NULL, copyFile, (void*)&f)){
-		fprintf(stderr, "Error: pthread_create() return code %d\n", iret[0]);
-		exit(EXIT_FAILURE);
+	while((nread = read(in,block,sizeof(block))) > 0){
+		write(out, block, nread);
+		et=time(NULL);
+		if(et-st >= SLEEP_SEC){
+			fflush(stdout);
+			printf(".");
+			st=et;
+		}
 	}
-	if(iret[1] = pthread_create(&(tid[1]), NULL, printDot, NULL)){
-		fprintf(stderr, "Error: pthread_create() return code %d\n", iret[1]);
-		exit(EXIT_FAILURE);
-	}
-
-	pthread_join(tid[0], NULL);
-	pthread_cancel(tid[1]);
-	printf("\ndone\n");
+	printf("\ndone.\n");
 
 	exit(EXIT_SUCCESS);
 }
