@@ -6,7 +6,7 @@
 #include<string.h>
 
 // get PID(process id) belong processName
-pid_t getPtestid(char *processName){
+pid_t getPid(char *processName){
 	FILE *pRead;
 	int len;
 	char buffer[20];
@@ -20,18 +20,18 @@ pid_t getPtestid(char *processName){
 	}
 
 	while((len = fscanf(pRead, "%s", buffer)) > 0){
-		pclose(p);
-		return (pid_t)atoi(buf);
+		pclose(pRead);
+		return (pid_t)atoi(buffer);
 	}
 	
-	pclose(p);
+	pclose(pRead);
 
 	return (pid_t)-1;
 }
 
 void intervalAlarm(int sig){
-	pid_t pid;
-	pid = getPid("ptest");
+	pid_t pid = getPid("ptest");
+
 
 	fflush(stdout);
 	if(pid < 0)
