@@ -6,26 +6,27 @@
 #include<string.h>
 
 // get PID(process id) belong processName
-pid_t getPid(char *processName){
+pid_t getPtestid(char *processName){
 	FILE *pRead;
 	int len;
-	char buffer[4][20];
-
-	if((pRead = popen("ps -a", "r")) == NULL){
-		fputs("popen Error", stderr);
-		return -1;
+	char buffer[20];
+	char command[100];
+	
+	strcpy(command, "pidof ");
+	strcat(command, processName);
+	
+	if((pRead = popen(command, "r")) == NULL){
+		printf("popen error\n");
 	}
 
-	while((len = fscanf(pRead, "%s%*s%*s%s", buffer[0], buffer[1]))>0){
-		if(!strcmp(buffer[1], processName)){
-			pclose(pRead);
-			return (pid_t)atoi(buffer[0]);
-		}
-		
+	while((len = fscanf(pRead, "%s", buffer)) > 0){
+		pclose(p);
+		return (pid_t)atoi(buf);
 	}
+	
+	pclose(p);
 
-	pclose(pRead);
-	return -1;
+	return (pid_t)-1;
 }
 
 void intervalAlarm(int sig){
