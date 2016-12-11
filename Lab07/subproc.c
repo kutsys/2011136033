@@ -6,6 +6,17 @@
 #include <signal.h>
 #include <string.h>
 
+int file_descriptor;
+
+void unindentedExit(int sig){
+	int i;
+	if(file_descriptor > 0)
+		write(file_descriptor, "0", 1);
+	
+	signal(sig, SIG_DFL);
+	raise(sig);
+}
+
 void test_funct(){
 	static int count = 0;
 	pid_t pid = getpid();
@@ -23,18 +34,28 @@ void test_funct(){
 
 int main(int argc, char **argv){
 	int r;
-	int file_descriptor;
 
+	// regist signals
+	signal(SIGKILL, unindentedExit);
+	signal(SIGINT, unindentedExit);
+	signal(SIGTERM, unindentedExit);
+	signal(SIGQUIT, unindentedExit);
+	signal(SIGHUP, unindentedExit);
+	
+
+	// get file_descriptor
 	if(argc>1)
 		sscanf(argv[1], "%d", &file_descriptor);
 	else
-		file_descriptor = -1;
+		file_descriptor = 0;
 
-	srand(getpid());
+	// randomly call test_funct();
+	srand(getpid()+time(NULL));
 	while(1){
 		test_funct();
-		if(file_descriptor > -1)
+		if(file_descriptor > 0){
 			write(file_descriptor, "1", 1);
+		}
 		r=rand()%10;
 		sleep(r+1);
 	}
