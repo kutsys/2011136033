@@ -7,3 +7,4 @@ mproc1: mproc1.c
 subproc: subproc.c
 	touch *.c
 	gcc subproc.c -o subproc
+	cp subproc ../Lab08/subproc

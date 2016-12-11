@@ -6,7 +6,10 @@
 #include <signal.h>
 #include <string.h>
 
+#define DEST_NUM 20
+
 int file_descriptor;
+int count;
 
 void unindentedExit(int sig){
 	int i;
@@ -18,7 +21,6 @@ void unindentedExit(int sig){
 }
 
 void test_funct(){
-	static int count = 0;
 	pid_t pid = getpid();
 	time_t theTime;
 	struct tm *tm_ptr;
@@ -53,6 +55,10 @@ int main(int argc, char **argv){
 	srand(getpid()+time(NULL));
 	while(1){
 		test_funct();
+
+		if(count >= DEST_NUM)
+			break;
+
 		if(file_descriptor > 0){
 			write(file_descriptor, "1", 1);
 		}
