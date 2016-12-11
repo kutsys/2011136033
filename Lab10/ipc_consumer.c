@@ -49,7 +49,7 @@ int main(){
 		sleep(1);
 		
 		memset(buffer, 0, sizeof(buffer));
-		sprintf(buffer, "김형근 %d", getpid());
+		sprintf(buffer, "%d 김형근", getpid());
 		res = write(pipe_id[1], buffer, BUF_SIZE);
 		if(res == -1){
 			fprintf(stderr, "consumer Write error on pipe\n");

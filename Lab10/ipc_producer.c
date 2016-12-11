@@ -9,10 +9,26 @@
 
 #define BUF_SIZE 40
 
+pid_t splitPid(char *buffer[]){
+	int i, c=0;
+	char temp[BUF_SIZE];
+
+	for(i=0; i<BUF_SIZE; i++){
+		c++;
+		if((*buffer)[i] == ' ')
+			break;
+	}
+	
+	strncpy(temp, *buffer, sizeof(char)*c);
+	strncpy(*buffer, *buffer+c, sizeof(char)*(BUF_SIZE-c));
+	return (pid_t)atoi(temp);
+}
+
 int main(){
 	pid_t pid;
 	int res, pipe_id[2];
 	char *pipe_name[2] = {"./prod_write", "./cons_write"}, buffer[BUF_SIZE+1];
+	char *student_id = "201136033";
 
 	if(access(pipe_name[0], F_OK) == -1){
 		res = mkfifo(pipe_name[0], 0777);
@@ -69,9 +85,13 @@ int main(){
 			fprintf(stderr, "producer Read error on pipe\n");
 			return -1;
 		}
-		pid = atoi(buffer);
+		
+		
+		pid = splitPid(&buffer);
 		printf("producer pid: %d\n", getpid());
 		printf("consumer pid: %d\n", pid);
+		printf("student id: %s\n", student_id);
+		printf("name: %s\n", buffer);
 	}
 
 	close(pipe_id[0]);
