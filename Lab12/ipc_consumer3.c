@@ -35,7 +35,7 @@ int main(){
 
 		if(!strncmp(data.text, "exit", sizeof("exit")))
 			break;
-		printf("producer pid: %d, student_id: %d\n", data.pid, data.text);
+		printf("producer pid: %d, student_id: %s\n", data.pid, data.text);
 
 		sleep(1);
 
