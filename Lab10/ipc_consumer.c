@@ -1,63 +1,74 @@
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <limits.h>
 
-#define BUF_SIZE 40
+#define RD_PATH "./pWrite"
+#define WR_PATH "./cWrite"
+#define BUF_SIZE 20
+
+pid_t split(char *buffer[]){
+	int i, c=0;
+	char temp[BUF_SIZE];
+
+	for(i=0; i<BUF_SIZE; i++){
+		c++;
+		if((*buffer)[i] == ' ')
+				break;
+	}
+	memset(temp, 0, BUF_SIZE);
+	strncpy(temp, *buffer, sizeof(char)*c);
+	strncpy(*buffer, *(buffer+c), sizeof(char)*(BUF_SIZE-c));
+	return (pid_t)atoi(temp);
+}
 
 int main(){
+	int pipe_fd;
+	int res;
 	pid_t pid;
-	int res, pipe_id[2];
-	char *pipe_name[2] = {"./prod_write", "./cons_write"}, buffer[BUF_SIZE+1];
-
-	if(access(pipe_name[0], F_OK) == -1){
-		res = mkfifo(pipe_name[0], 0777);
+	char buffer[BUF_SIZE];
+	char *name = "김형근";
+	if(access(WR_PATH, F_OK) == -1){
+		res = mkfifo(WR_PATH, 0777);
 		if(res){
-			fprintf(stderr, "Could not create read fifo %s\n", pipe_name[0]);
+			fprintf(stderr, "Could not create fifo %s\n", WR_PATH);
 			return -1;
 		}
-	}
-
-	if(access(pipe_name[1], F_OK) == -1){
-		res = mkfifo(pipe_name[1], 0777);
-		if(res){
-			fprintf(stderr, "Could not create write fifo %s\n", pipe_name[1]);
-			return -1;
-		}
-	}
-
-	pipe_id[0] = open(pipe_name[0], O_RDONLY, 0777);
-	pipe_id[1] = open(pipe_name[1], O_WRONLY, 0777);
-
-	if(pipe_id[0] == -1 || pipe_id[1] == -1){
-		fprintf(stderr, "Could not open pipes \n");
-		return -1;
 	}
 
 	while(1){
+		pipe_fd = open(WR_PATH, O_WRONLY);
+		if(pipe_fd == -1){
+			fprintf(stderr, "Could not open O_WRONLY fifo %s\n", WR_PATH);
+			return -1;
+		}
+		printf("Enter start for starting(or exit for end): ");
 		memset(buffer, 0, BUF_SIZE);
-		res = read(pipe_id[0], buffer, BUF_SIZE);
-		if(res == -1){
-			fprintf(stderr, "consumer Read error on pipe\n");
-			return -1;
-		}
-		printf("%s\n", buffer);
-		sleep(1);
-		
-		memset(buffer, 0, sizeof(buffer));
-		sprintf(buffer, "%d 김형근", getpid());
-		res = write(pipe_id[1], buffer, BUF_SIZE);
-		if(res == -1){
-			fprintf(stderr, "consumer Write error on pipe\n");
-			return -1;
-		}
-	}
 
-	close(pipe_id[0]);
-	close(pipe_id[1]);
+		sprintf(buffer, "%d %s", getpid(), name);
+		res = write(pipe_fd, buffer, BUF_SIZE);
+		if(res == -1){
+			fprintf(stderr, "Write error on pipe\n");
+			return -1;
+		}
+
+		close(pipe_fd);
+		
+		pipe_fd = open(RD_PATH, O_RDONLY);
+		if(pipe_fd == -1){
+			fprintf(stderr, "Could not open O_RDONLY fifo %s\n", RD_PATH);
+			return -1;
+		}
+		memset(buffer, 0, BUF_SIZE);
+		res = read(pipe_fd, buffer, BUF_SIZE);
+		pid = split(&buffer);
+		printf("producer pid: %d\n", pid);
+		printf("student id: %s\n", buffer);
+
+		close(pipe_fd);
+	}
 	return 0;
 }
