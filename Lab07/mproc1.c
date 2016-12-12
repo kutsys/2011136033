@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #define NUM_FORK 10
-#define COUNT_DEST 5
+#define COUNT_DEST 20
 #define BUF_SIZE 20
 
 pid_t pid[NUM_FORK];
@@ -64,12 +64,12 @@ int main(){
 	}
 
 	// parent process
+	printf("2011136033 김형근\n");
 	while(1){
-		printf("2011136033 김형근\n");
 		overnum = 0;
 		for(i=0; i<NUM_FORK; i++){
 			if(pid[i] > 0){
-				write(file_pipes[i*2+1], '2', 1);
+				write(file_pipes[i*2+1], "2", 2);
 				readsize = 0;
 				readsize = read(file_pipes[i*2], buffer, sizeof(buffer));
 			
@@ -88,7 +88,6 @@ int main(){
 				overnum++;
 		}
 		
-		printf("overnum: %d\n",overnum);
 		if(overnum >= NUM_FORK)
 			break;
 	}
